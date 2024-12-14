@@ -55,6 +55,7 @@ class TranslationAppManager:
         with open(cache_path, "w") as f:
             json.dump(
                 {
+                    "url": paper_url,
                     "original": original.to_dict(),
                     "translated": translated.to_dict(),
                 },
@@ -89,3 +90,22 @@ class TranslationAppManager:
             res.append(f"{prefix} {text} / {translated_text}")
 
         return "\n\n".join(res)
+
+    def get_paper_list(self) -> list[dict]:
+        res = []
+        for file in os.listdir(self.config.cache_dir):
+            if not file.endswith(".json"):
+                continue
+
+            with open(os.path.join(self.config.cache_dir, file)) as f:
+                data = json.load(f)
+
+            url = data["url"]
+            title = data["original"]["title"]
+
+            res.append({
+                "url": url,
+                "title": title,
+            })
+
+        return res

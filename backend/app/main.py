@@ -41,6 +41,12 @@ async def translate_to_markdown(request: MarkdownRequest):
         return {"error": repr(e)}
 
 
+@app.get("/list")
+async def paper_list():
+    manager = TranslationAppManager(config)
+    return {"response": manager.get_paper_list()}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=8090)

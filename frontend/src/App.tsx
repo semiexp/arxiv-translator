@@ -1,16 +1,26 @@
 import axios from "axios";
 import { Button, CircularProgress, TextField } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from "remark-math";
 import "katex/dist/katex.min.css";
 import ReactMarkdown from 'react-markdown';
+
+import { PaperList } from "./paperList";
 
 function App() {
   const [url, setUrl] = useState("");
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+
+  const [paperList, setPaperList] = useState<{title: string, url: string}[]>([]);
+
+  const updatePaperList = async () => {
+    const response = await axios.get("http://localhost:8090/list");
+
+    setPaperList(response.data["response"]);
+  };
 
   const runTranslate = async () => {
     if (isRunning) {
@@ -32,6 +42,17 @@ function App() {
       setText(response.data["response"]);
       setError("");
     }
+
+    updatePaperList();
+  };
+
+  useEffect(() => {
+    updatePaperList();
+  }, []);
+
+  const selectPaperFromList = async (url: string) => {
+    setUrl(url);
+    runTranslate();
   };
 
   return (
@@ -40,6 +61,8 @@ function App() {
         <TextField label={"URL"} value={url} sx={{flexGrow: 1}} onChange={(e) => setUrl(e.target.value)} />
         <Button variant="outlined" onClick={runTranslate} disabled={isRunning}>Translate</Button>
       </div>
+
+      <PaperList papers={paperList} onClick={(url) => selectPaperFromList(url)} />
 
       {
         isRunning && <CircularProgress />
