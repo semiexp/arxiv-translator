@@ -14,10 +14,22 @@ class AppConfig(NamedTuple):
     cache_dir: str = "cache"
 
 
+ARXIV_HTML_PREFIX = "https://arxiv.org/html/"
+ARXIV_ABS_PREFIX = "https://arxiv.org/abs/"
+
+
 class TranslationAppManager:
     def __init__(self, config: AppConfig):
         self.config = config
         os.makedirs(self.config.cache_dir, exist_ok=True)
+
+    def normalize_url(self, paper_url: str) -> str:
+        if paper_url.startswith(ARXIV_ABS_PREFIX):
+            return ARXIV_HTML_PREFIX + paper_url[len(ARXIV_ABS_PREFIX) :]
+        elif paper_url.startswith(ARXIV_HTML_PREFIX):
+            return paper_url
+        else:
+            raise ValueError(f"Invalid URL: {paper_url}")
 
     def get_cache_path(self, paper_url: str) -> str:
         return os.path.join(self.config.cache_dir, hashlib.md5(paper_url.encode()).hexdigest() + ".json")
@@ -52,6 +64,7 @@ class TranslationAppManager:
         return original, translated
 
     async def get_markdown(self, paper_url: str) -> str:
+        paper_url = self.normalize_url(paper_url)
         original, translated = await self.get_paper(paper_url)
 
         res = [f"# {original.title}"]

@@ -34,8 +34,11 @@ class MarkdownRequest(BaseModel):
 async def translate_to_markdown(request: MarkdownRequest):
     manager = TranslationAppManager(config)
 
-    markdown = await manager.get_markdown(request.arxiv_url)
-    return {"response": markdown}
+    try:
+        markdown = await manager.get_markdown(request.arxiv_url)
+        return {"response": markdown}
+    except Exception as e:
+        return {"error": repr(e)}
 
 
 def main() -> None:
