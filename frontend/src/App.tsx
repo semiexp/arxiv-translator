@@ -22,7 +22,7 @@ function App() {
     setPaperList(response.data["response"]);
   };
 
-  const runTranslate = async () => {
+  const runTranslate = async (url: string) => {
     if (isRunning) {
       return;
     }
@@ -52,14 +52,14 @@ function App() {
 
   const selectPaperFromList = async (url: string) => {
     setUrl(url);
-    runTranslate();
+    runTranslate(url);
   };
 
   return (
     <div style={{width: "100%", maxWidth: "800px"}}>
       <div style={{display: "flex"}}>
         <TextField label={"URL"} value={url} sx={{flexGrow: 1}} onChange={(e) => setUrl(e.target.value)} />
-        <Button variant="outlined" onClick={runTranslate} disabled={isRunning}>Translate</Button>
+        <Button variant="outlined" onClick={() => runTranslate(url)} disabled={isRunning}>Translate</Button>
       </div>
 
       <PaperList papers={paperList} onClick={(url) => selectPaperFromList(url)} />
